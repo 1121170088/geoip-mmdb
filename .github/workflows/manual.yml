@@ -14,6 +14,7 @@ jobs:
           LICENSE_KEY: ${{ secrets.MMDB_LICENSEKEY }}
         run: |
           cd $GITHUB_WORKSPACE
+
           rm -rf generate_asn_mmdb/*.txt
           sh ./generate_asn_mmdb/1.bat
           mv *.txt generate_asn_mmdb/
@@ -21,12 +22,24 @@ jobs:
           curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-ASN-CSV.zip
           unzip GeoLite2-ASN-CSV.zip
           mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
+
           rm -rf generate_city_mmdb/*.csv
           curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-City-CSV.zip
           unzip GeoLite2-City-CSV.zip
           mv GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
+
+          rm -rf generate_country_mmdb/*.csv
+          rm -rf generate_country_mmdb/*.txt
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key={LICENSE_KEY}&suffix=zip" -o GeoLite2-Country.zip
+          unzip GeoLite2-Country.zip
+          mv GeoLite2-Country*/*.csv generate_country_mmdb
+          sh ./generate_country_mmdb/1.bat
+          mv *.txt generate_country_mmdb
+
           go test -run Test_Generate_Asn generate_test/generate_test.go
           go test -run Test_Generate_City generate_test/generate_test.go
+          go test -run Test_Generate_Country generate_test/generate_test.go
+          
           GOARCH=amd64 GOOS=windows GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb.exe main.go
           GOARCH=amd64 GOOS=linux GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb main.go
 
