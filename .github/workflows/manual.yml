@@ -30,8 +30,8 @@ jobs:
 
           rm -rf generate_country_mmdb/*.csv
           rm -rf generate_country_mmdb/*.txt
-          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key={LICENSE_KEY}&suffix=zip" -o GeoLite2-Country.zip
-          unzip GeoLite2-Country.zip
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-Country-CSV.zip
+          unzip GeoLite2-Country-CSV.zip
           mv GeoLite2-Country*/*.csv generate_country_mmdb
           sh ./generate_country_mmdb/1.bat
           mv *.txt generate_country_mmdb
@@ -39,7 +39,7 @@ jobs:
           go test -run Test_Generate_Asn generate_test/generate_test.go
           go test -run Test_Generate_City generate_test/generate_test.go
           go test -run Test_Generate_Country generate_test/generate_test.go
-          
+
           GOARCH=amd64 GOOS=windows GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb.exe main.go
           GOARCH=amd64 GOOS=linux GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb main.go
 
