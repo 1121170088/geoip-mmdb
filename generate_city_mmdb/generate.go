@@ -17,13 +17,6 @@ import (
 var (
 	cityIpBlocks = make(map[string]*CityIpBlock)
 	CityLocations = make(map[string]*CityLocation)
-	cernet_cidr = make([]string, 0)
-	chinatelecom_cidr = make([]string, 0)
-	cmcc_cidr = make([]string, 0)
-	crtc_cidr = make([]string, 0)
-	gwbn_cidr = make([]string, 0)
-	unicom_cnc_cidr = make([]string, 0)
-
 	writer *mmdbwriter.Tree
 )
 

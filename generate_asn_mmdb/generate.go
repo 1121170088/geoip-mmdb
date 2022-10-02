@@ -15,7 +15,6 @@ import (
 )
 
 var (
-	cernet_cidr = make([]string, 0)
 	writer *mmdbwriter.Tree
 	AsnBlocks = make([]*AsnBlock, 0)
 )
