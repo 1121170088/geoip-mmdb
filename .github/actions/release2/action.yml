@@ -59,9 +59,7 @@ runs:
         ls -alh
 
       shell: bash
-    - name: Delete Release
-      uses: larryjoelane/delete-release-action@v1.0.24
-      
+   
     - uses: softprops/action-gh-release@v1
       with:
         files: bin/*
