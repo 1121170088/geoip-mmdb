@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - env:
-          LICENSE_KEY: ${{ secret.MMDB_LICENSEKEY }}
+          LICENSE_KEY: ${{ secrets.MMDB_LICENSEKEY }}
         run: |
           cd $GITHUB_WORKSPACE
           rm -rf generate_asn_mmdb/*.txt
