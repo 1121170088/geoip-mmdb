@@ -21,6 +21,7 @@ jobs:
           curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-ASN-CSV.zip
           pwd
           ls -alh
+          echo ${LICENSE_KEY}
           unzip GeoLite2-ASN-CSV.zip
           mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
           rm -rf generate_city_mmdb/*.csv
