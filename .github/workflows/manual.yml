@@ -29,10 +29,10 @@ jobs:
           mv GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
           go test -run Test_Generate_Asn generate_test/generate_test.go
           go test -run Test_Generate_City generate_test/generate_test.go
-          pwd
-          ls generate_asn_mmdb/ generate_city_mmdb/ ./
-          find  / -name GeoLite2-City.mmdb
-          tar czf asn-city.tar.gz GeoLite2-ASN.mmdb GeoLite2-City.mmdb
+          ls generate_asn_mmdb/ generate_city_mmdb/ generate_test ./
+          #find  / -name GeoLite2-City.mmdb
+          tar czf asn-city.tar.gz generate_test/GeoLite2-ASN.mmdb generate_test/GeoLite2-City.mmdb
+          ls
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v3
