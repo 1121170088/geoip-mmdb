@@ -1,0 +1,35 @@
+on:
+  workflow_dispatch:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.19.1'
+
+      - uses: actions/checkout@v3
+
+      - run: |
+          cd $GITHUB_WORKSPACE
+          rm -rf generate_asn_mmdb/*.txt
+          sh ./generate_asn_mmdb/1.bat
+          mv *.txt generate_asn_mmdb/
+          rm -rf generate_asn_mmdb/*.csv
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${{ secret.MMDB_LICENSEKEY }}&suffix=zip" -o GeoLite2-ASN-CSV.zip
+          unzip GeoLite2-ASN-CSV.zip
+          mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
+          rm -rf generate_city_mmdb/*.csv
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${{ secret.MMDB_LICENSEKEY }}&suffix=zip" -o GeoLite2-City-CSV.zip
+          unzip GeoLite2-City-CSV.zip
+          mv GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
+          go test -run Test_Generate_Asn generate_test/generate_test.go
+          go test -run Test_Generate_City generate_test/generate_test.go
+          tar czf asn-city.tar.gz GeoLite2-ASN.mmdb GeoLite2-City.mmdb
+          echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.RELEASE_NAME }}
+          path: asn-city.tar.gz
+          if-no-files-found: error
