@@ -47,7 +47,7 @@ runs:
         GOARCH=amd64 GOOS=linux GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb main.go
 
         echo "RELEASE_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-        ls -alh
+
         mv *.mmdb bin/
         cd bin/
         zip -r geoip-mmdb.exe.zip geoip-mmdb.exe
@@ -56,9 +56,11 @@ runs:
         zip -r GeoLite2-City.zip GeoLite2-City.mmdb
         zip -r GeoLite2-Country.zip GeoLite2-Country.mmdb
         rm -rf geoip-mmdb.exe  geoip-mmdb *.mmdb
-
+        ls -alh
+        
       shell: bash
     - uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
       with:
         files: bin/*
         draft: false
