@@ -21,6 +21,7 @@ runs:
         
         pwd
         ls -alh
+        env
         
         unzip GeoLite2-ASN-CSV.zip
         mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
