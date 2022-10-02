@@ -17,7 +17,7 @@ runs:
         sh ./generate_asn_mmdb/1.bat
         mv *.txt generate_asn_mmdb/
         rm -rf generate_asn_mmdb/*.csv
-        curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${licenseKey}&suffix=zip" -o GeoLite2-ASN-CSV.zip
+        curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-ASN-CSV.zip
         
         pwd
         ls -alh
