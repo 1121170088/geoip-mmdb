@@ -15,3 +15,7 @@ vendor
 
 # test suite
 test/config/cache*
+*.mmdb
+geoip-mmdb
+geoip-mmdb.exe
+bin

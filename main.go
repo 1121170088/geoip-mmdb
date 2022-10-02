@@ -35,6 +35,11 @@ func main()  {
 		CountryIsoCode    string
 		Subdivision1Name    string
 		Subdivision2Name    string
+		Location struct {
+			AccuracyRadius uint16
+			Latitude       float64
+			Longitude      float64
+		}
 	}{}
 	if cityFile != "" {
 		f, err := reader.Open(cityFile)
@@ -54,6 +59,9 @@ func main()  {
 		result.CountryName = city.CountryName
 		result.ContinentName = city.ContinentName
 		result.Name = city.Name
+		result.Location.AccuracyRadius = city.Location.AccuracyRadius
+		result.Location.Latitude = city.Location.Latitude
+		result.Location.Longitude = city.Location.Longitude
 	}
 	if asnFile != "" {
 		f, err := reader.Open(asnFile)
