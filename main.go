@@ -31,6 +31,7 @@ func main()  {
 	}
 	IP := net.ParseIP(ip)
 	var result = struct {
+		Ip               string                   `json:"ip"`
 		ContinentName    string                   `json:"continent"`
 		CountryName    string                    `json:"country"`
 		Subdivision1Name    string               `json:"province"`
@@ -65,6 +66,7 @@ func main()  {
 		result.Location.AccuracyRadius = city.Location.AccuracyRadius
 		result.Location.Latitude = city.Location.Latitude
 		result.Location.Longitude = city.Location.Longitude
+		result.Ip = ip
 	}
 	if asnFile != "" {
 		f, err := reader.Open(asnFile)
