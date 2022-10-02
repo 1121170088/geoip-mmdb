@@ -31,11 +31,12 @@ jobs:
           GOARCH=amd64 GOOS=linux GOAMD64=v3 CGO_ENABLED=0 go build -trimpath -o bin/geoip-mmdb main.go
 
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
-          zip -r 1.zip bin/ *.mmdb
           ls -alh
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ env.RELEASE_NAME }}
-          path: 1.zip
+          path: |
+            bin/
+            *.mmdb
           if-no-files-found: error
