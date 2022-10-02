@@ -3,9 +3,11 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"geoip-mmdb/reader"
 	"log"
 	"net"
+	"os"
 )
 
 var (
@@ -20,6 +22,7 @@ func init() {
 	flag.StringVar(&ip, "ip", "", "ip")
 
 	flag.Parse()
+	flag.PrintDefaults()
 }
 
 func main()  {
@@ -28,18 +31,18 @@ func main()  {
 	}
 	IP := net.ParseIP(ip)
 	var result = struct {
-		AutonomousSystemOrganization string
-		Name    string
-		ContinentName    string
-		CountryName    string
-		CountryIsoCode    string
-		Subdivision1Name    string
-		Subdivision2Name    string
+		ContinentName    string                   `json:"continent"`
+		CountryName    string                    `json:"country"`
+		Subdivision1Name    string               `json:"province"`
+		Name    string                           `json:"city"`
+		Subdivision2Name    string               `json:"district"`
+		AutonomousSystemOrganization string      `json:"organization"`
+		CountryIsoCode    string                 `json:"iso_code"`
 		Location struct {
-			AccuracyRadius uint16
-			Latitude       float64
-			Longitude      float64
-		}
+			Longitude      float64                 `json:"longitude"`
+			Latitude       float64                 `json:"latitude"`
+			AccuracyRadius uint16                  `json:"accuracy_radius"`
+		} `json:"location"`
 	}{}
 	if cityFile != "" {
 		f, err := reader.Open(cityFile)
@@ -82,7 +85,7 @@ func main()  {
 		log.Printf("json %s", err.Error())
 		return
 	}
-	println(string(bytes))
+	fmt.Fprintln(os.Stdout, string(bytes))
 }
 
 
