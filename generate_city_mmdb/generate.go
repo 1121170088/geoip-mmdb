@@ -167,7 +167,7 @@ func Generatemmdb(pathbase string)  {
 
 		insertData(citylocation, v, ipnet)
 	}
-	fh, err := os.Create("GeoLite2-City.mmdb")
+	fh, err := os.Create("../GeoLite2-City.mmdb")
 	if err != nil {
 		log.Fatal(err)
 	}

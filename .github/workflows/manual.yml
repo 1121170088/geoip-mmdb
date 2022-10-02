@@ -26,11 +26,9 @@ jobs:
           unzip GeoLite2-City-CSV.zip
           mv GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
           go test -run Test_Generate_Asn generate_test/generate_test.go
-          ls -alh generate_test/
           go test -run Test_Generate_City generate_test/generate_test.go
-          ls -alh generate_test/
-          #find  / -name GeoLite2-City.mmdb
-          tar czf asn-city.tar.gz generate_test/GeoLite2-ASN.mmdb generate_test/GeoLite2-City.mmdb
+          tar czf asn-city.tar.gz GeoLite2-ASN.mmdb GeoLite2-City.mmdb
+          ls -alh
           echo "RELEASE_NAME=Released on $(date +%Y%m%d%H%M)" >> $GITHUB_ENV
 
       - uses: actions/upload-artifact@v3
