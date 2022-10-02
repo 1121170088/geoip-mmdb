@@ -10,17 +10,19 @@ jobs:
 
       - uses: actions/checkout@v3
 
-      - run: |
+      - env:
+          LICENSE_KEY: ${{ secret.MMDB_LICENSEKEY }}
+        run: |
           cd $GITHUB_WORKSPACE
           rm -rf generate_asn_mmdb/*.txt
           sh ./generate_asn_mmdb/1.bat
           mv *.txt generate_asn_mmdb/
           rm -rf generate_asn_mmdb/*.csv
-          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${{ secret.MMDB_LICENSEKEY }}&suffix=zip" -o GeoLite2-ASN-CSV.zip
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-ASN-CSV.zip
           unzip GeoLite2-ASN-CSV.zip
           mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
           rm -rf generate_city_mmdb/*.csv
-          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${{ secret.MMDB_LICENSEKEY }}&suffix=zip" -o GeoLite2-City-CSV.zip
+          curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${LICENSE_KEY}&suffix=zip" -o GeoLite2-City-CSV.zip
           unzip GeoLite2-City-CSV.zip
           mv GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
           go test -run Test_Generate_Asn generate_test/generate_test.go
