@@ -30,12 +30,27 @@ func Start(addr string)  {
 		}
 		result := make(map[string] *search.Res)
 		for _, domain := range domains {
-			result[domain] = nil
+			res := &search.Res{}
 			ips, err := net.LookupIP(domain)
 			if err != nil || len(ips) == 0 {
-				continue
+				res = &search.Res{
+					Ip:                           "",
+					ContinentName:                "",
+					CountryName:                  "",
+					Subdivision1Name:             "",
+					Name:                         "",
+					Subdivision2Name:             "",
+					AutonomousSystemOrganization: "",
+					CountryIsoCode:               "",
+					Location: struct {
+						Longitude      float64 `json:"longitude"`
+						Latitude       float64 `json:"latitude"`
+						AccuracyRadius uint16  `json:"accuracy_radius"`
+					}{},
+				}
+			} else {
+				res = search.Search(ips[0].String())
 			}
-			res := search.Search(ips[0].String())
 			result[domain] = res
 		}
 		bytes, err = json.Marshal(result)
