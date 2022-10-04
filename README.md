@@ -5,4 +5,6 @@ https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-a
 
 这个artifact没登录没法下载，看来只能release了
 
-curl 127.0.0.1:9080/domains -v -d "[\"example.com\"]"
+curl http://127.0.0.1:9080/domains -v -d "[\"example.com\"]" 查域名解析
+curl http://127.0.0.1:9080/ip?1.1.1.1 查ip
+curl http://127.0.0.1:9080/ip  查自己
