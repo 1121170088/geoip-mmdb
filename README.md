@@ -4,3 +4,5 @@
 https://docs.github.com/en/actions/managing-workflow-runs/downloading-workflow-artifacts
 
 这个artifact没登录没法下载，看来只能release了
+
+curl 127.0.0.1:9080/domains -v -d "[\"example.com\"]"

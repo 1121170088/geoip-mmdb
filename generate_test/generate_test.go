@@ -32,7 +32,7 @@ func TestReader(t *testing.T) {
 	defer asnReader.Close()
 
 
-	cidr := "180.149.130.16"
+	cidr := ""
 	cityRecord, err := cityReader.City(net.ParseIP(cidr))
 	require.NoError(t, err)
 

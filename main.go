@@ -4,90 +4,58 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"geoip-mmdb/reader"
+	"geoip-mmdb/search"
+	"geoip-mmdb/server"
 	"log"
-	"net"
 	"os"
+	"os/signal"
+	"syscall"
 )
 
 var (
 	asnFile string
 	cityFile string
 	ip string
+	serverMode bool
+	addr string
 )
 
 func init() {
-	flag.StringVar(&asnFile, "asn", "", "asn mmdb file")
-	flag.StringVar(&cityFile, "city", "", "city mmdb file")
+	flag.StringVar(&asnFile, "asn", "./GeoLite2-ASN.mmdb", "asn mmdb file default ./GeoLite2-ASN.mmdb")
+	flag.StringVar(&cityFile, "city", "./GeoLite2-City.mmdb", "city mmdb file default ./GeoLite2-City.mmdb")
 	flag.StringVar(&ip, "ip", "", "ip")
+	flag.BoolVar(&serverMode, "s", false, "http server mode")
+	flag.StringVar(&addr, "addr", "127.0.0.1:9080", "server addr, default 127.0.0.1:9080")
 
 	flag.Parse()
-	flag.PrintDefaults()
+	serverMode = true
+
 }
 
 func main()  {
-	if ip == "" {
-		return
-	}
-	IP := net.ParseIP(ip)
-	var result = struct {
-		Ip               string                   `json:"ip"`
-		ContinentName    string                   `json:"continent"`
-		CountryName    string                    `json:"country"`
-		Subdivision1Name    string               `json:"province"`
-		Name    string                           `json:"city"`
-		Subdivision2Name    string               `json:"district"`
-		AutonomousSystemOrganization string      `json:"organization"`
-		CountryIsoCode    string                 `json:"iso_code"`
-		Location struct {
-			Longitude      float64                 `json:"longitude"`
-			Latitude       float64                 `json:"latitude"`
-			AccuracyRadius uint16                  `json:"accuracy_radius"`
-		} `json:"location"`
-	}{}
-	if cityFile != "" {
-		f, err := reader.Open(cityFile)
+
+	search.Init(asnFile, cityFile)
+
+
+	if !serverMode {
+		result := search.Search(ip)
+		bytes, err := json.Marshal(result)
 		if err != nil {
-			log.Printf("%s %s", cityFile, err.Error())
+			log.Printf("json %s", err.Error())
 			return
 		}
-		defer f.Close()
-		city, err := f.City(IP)
-		if err != nil {
-			log.Printf("%s %s", cityFile, err.Error())
-			return
-		}
-		result.Subdivision2Name = city.Subdivision2Name
-		result.Subdivision1Name = city.Subdivision1Name
-		result.CountryIsoCode = city.CountryIsoCode
-		result.CountryName = city.CountryName
-		result.ContinentName = city.ContinentName
-		result.Name = city.Name
-		result.Location.AccuracyRadius = city.Location.AccuracyRadius
-		result.Location.Latitude = city.Location.Latitude
-		result.Location.Longitude = city.Location.Longitude
-		result.Ip = ip
+		fmt.Fprintln(os.Stdout, string(bytes))
+
+	} else {
+
+		 go server.Start(addr)
+
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+		<-sigCh
 	}
-	if asnFile != "" {
-		f, err := reader.Open(asnFile)
-		if err != nil {
-			log.Printf("%s %s", cityFile, err.Error())
-			return
-		}
-		defer f.Close()
-		asn, err := f.ASN(IP)
-		if err != nil {
-			log.Printf("%s %s", cityFile, err.Error())
-			return
-		}
-		result.AutonomousSystemOrganization = asn.AutonomousSystemOrganization
-	}
-	bytes, err := json.Marshal(&result)
-	if err != nil {
-		log.Printf("json %s", err.Error())
-		return
-	}
-	fmt.Fprintln(os.Stdout, string(bytes))
+
+	search.UnInit()
 }
 
 
