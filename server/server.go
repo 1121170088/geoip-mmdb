@@ -56,8 +56,22 @@ func Start(addr string)  {
 			ipStr = rawQuery
 		} else {
 			remoteAddr := request.RemoteAddr
+			fwdAddress := request.Header.Get("X-Forwarded-For")
+			if fwdAddress != "" {
+				ipAddress := fwdAddress
+				ips := strings.Split(fwdAddress, ", ")
+				if len(ips) > 1 {
+					ipAddress = ips[0]
+				}
+				remoteAddr = ipAddress
+			}
 			idx := strings.Index(remoteAddr, ":")
-			ipStr = remoteAddr[0: idx]
+			if idx != -1 {
+				ipStr = remoteAddr[0: idx]
+			} else {
+				ipStr = remoteAddr
+			}
+
 		}
 		result := search.Search(ipStr)
 		bytes, err := json.Marshal(result)
