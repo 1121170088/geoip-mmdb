@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
 	"geoip-mmdb/search"
 	"io"
@@ -31,7 +32,7 @@ func Start(addr string)  {
 		result := make(map[string] *search.Res)
 		for _, domain := range domains {
 			res := &search.Res{}
-			ips, err := net.LookupIP(domain)
+			ips, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", domain)
 			if err != nil || len(ips) == 0 {
 				res = &search.Res{
 					Ip:                           "",

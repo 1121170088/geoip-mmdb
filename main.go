@@ -28,7 +28,7 @@ func init() {
 	flag.StringVar(&addr, "addr", "127.0.0.1:9080", "server addr, default 127.0.0.1:9080")
 
 	flag.Parse()
-	serverMode = true
+	//serverMode = true
 
 }
 
