@@ -19,3 +19,4 @@ test/config/cache*
 geoip-mmdb
 geoip-mmdb.exe
 bin
+pure.csv
