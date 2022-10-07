@@ -26,7 +26,7 @@ func Test_Generate_Country(t *testing.T) {
 }
 
 func TestConvert(t *testing.T) {
-	pureip.ConvertTxt2Csv()
+	pureip.ConvertTxt2Csv("../")
 }
 
 func Test_Generate_Merge_City(t *testing.T) {

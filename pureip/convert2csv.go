@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 )
@@ -44,7 +45,7 @@ func ReadAreaCsv(filename string) {
 	}
 }
 
-func ConvertTxt2Csv()  {
+func ConvertTxt2Csv(pathbase string)  {
 	purecsv, err :=  os.Create("../pure.csv")
 	if err != nil {
 		log.Fatal(err)
@@ -53,12 +54,12 @@ func ConvertTxt2Csv()  {
 	purecsvWriter := csv.NewWriter(purecsv)
 
 	ReadAreaCsv("../area.csv")
-	cityReader, err := reader.Open("../GeoLite2-City.mmdb")
+	cityReader, err := reader.Open(filepath.Join(pathbase, "GeoLite2-City.mmdb"))
 	if err != nil {
 		log.Panic(err)
 	}
 	defer cityReader.Close()
-	f, err := os.Open("../pure.txt")
+	f, err := os.Open(filepath.Join(pathbase,"pure.txt"))
 	if err != nil {
 		log.Panic(err)
 	}
