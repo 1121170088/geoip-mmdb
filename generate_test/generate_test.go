@@ -4,6 +4,8 @@ import (
 	"geoip-mmdb/generate_asn_mmdb"
 	"geoip-mmdb/generate_city_mmdb"
 	"geoip-mmdb/generate_country_mmdb"
+	"geoip-mmdb/merge_pure_city_mmdb"
+	"geoip-mmdb/pureip"
 	"geoip-mmdb/reader"
 	"github.com/stretchr/testify/require"
 	"log"
@@ -23,6 +25,16 @@ func Test_Generate_Country(t *testing.T) {
 	generate_country_mmdb.Generatemmdb("../generate_country_mmdb")
 }
 
+func TestConvert(t *testing.T) {
+	pureip.ConvertTxt2Csv()
+}
+
+func Test_Generate_Merge_City(t *testing.T) {
+	merge_pure_city_mmdb.Generatemmdb("../merge_pure_city_mmdb")
+}
+func Test_Generate_Merge_City2(t *testing.T) {
+	merge_pure_city_mmdb.Generatemmdb2("../merge_pure_city_mmdb")
+}
 func TestReader(t *testing.T) {
 	cityReader, err := reader.Open("../GeoLite2-City.mmdb")
 	require.NoError(t, err)
