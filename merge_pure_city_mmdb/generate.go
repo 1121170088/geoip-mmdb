@@ -354,6 +354,9 @@ func SendMdbCity()  {
 				NetWork: int2ip(i).String(),
 				City:    city.City,
 			}
+			if city.City.Location.Longitude == 0 {
+				log.Printf("dddddddd")
+			}
 			mdbCityChannel <- &mdbCN
 		}
 	}

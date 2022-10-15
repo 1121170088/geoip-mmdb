@@ -18,6 +18,8 @@ var (
 	ip string
 	serverMode bool
 	addr string
+	tldFile string
+
 )
 
 func init() {
@@ -26,9 +28,10 @@ func init() {
 	flag.StringVar(&ip, "ip", "", "ip")
 	flag.BoolVar(&serverMode, "s", false, "http server mode")
 	flag.StringVar(&addr, "addr", "127.0.0.1:9080", "server addr, default 127.0.0.1:9080")
+	flag.StringVar(&tldFile, "tld", "", "default empty string, may download at https://publicsuffix.org/list/public_suffix_list.dat, using for getting sub domain from domain submitted via http request")
 
 	flag.Parse()
-	//serverMode = true
+	serverMode = true
 
 }
 
@@ -48,7 +51,7 @@ func main()  {
 
 	} else {
 
-		 go server.Start(addr)
+		 go server.Start(addr, tldFile)
 
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)

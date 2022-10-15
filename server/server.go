@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"geoip-mmdb/search"
+	ds "github.com/1121170088/find-domain/search"
 	"io"
 	"log"
 	"net"
@@ -11,10 +12,15 @@ import (
 	"strings"
 )
 
-func Start(addr string)  {
+func Start(addr, tldFile string)  {
+	if tldFile != "" {
+		ds.Init(tldFile)
+	}
+
 	http.HandleFunc("/domains", func(writer http.ResponseWriter, request *http.Request) {
 		header := writer.Header()
 		header.Add("Content-Type", "application/json;charset=UTF-8")
+		level := request.URL.Query().Get("level")
 
 		var domains []string
 		bytes, err := io.ReadAll(request.Body)
@@ -30,6 +36,19 @@ func Start(addr string)  {
 			return
 		}
 		result := make(map[string] *search.Res)
+		if tldFile != "" && level == "2" {
+			tempMap := make(map[string] struct{})
+			for _, domain := range domains {
+				dm := ds.Search(domain)
+				if dm != "" {
+					tempMap[dm] = struct{}{}
+				}
+			}
+			domains = make([]string, 0)
+			for k, _ := range tempMap {
+				domains = append(domains, k)
+			}
+		}
 		for _, domain := range domains {
 			res := &search.Res{}
 			ips, err := net.DefaultResolver.LookupIP(context.Background(), "ip4", domain)
