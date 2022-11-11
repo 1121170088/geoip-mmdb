@@ -269,7 +269,8 @@ func Generatemmdb(pathbase string)  {
 			Subdivision1Name: citylocation.Subdivision1Name,
 			Subdivision2Name: citylocation.Subdivision2Name,
 		}
-		if city.CountryIsoCode != "CN" || strings.Index(k, ":" ) != -1 {
+		//if city.CountryIsoCode != "CN" || strings.Index(k, ":" ) != -1 {
+		if strings.Index(k, ":" ) != -1 {
 			// 不是cn的ip范围 或者 ipv6范围 先插入
 			_, ipnet, err := net.ParseCIDR(k)
 			if err != nil {

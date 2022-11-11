@@ -31,7 +31,7 @@ func init() {
 	flag.StringVar(&tldFile, "tld", "", "default empty string, may download at https://publicsuffix.org/list/public_suffix_list.dat, using for getting sub domain from domain submitted via http request")
 
 	flag.Parse()
-	serverMode = true
+	//serverMode = true
 
 }
 
