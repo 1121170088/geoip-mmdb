@@ -29,7 +29,7 @@ var (
 	done = make(chan struct{}, 0)
 	pureCityChannel = make(chan []string, 1000)
 	mdbCityChannel = make(chan *MdbCN, 1000)
-	mergerChannel = make(chan *MdbCN)
+	mergerChannel = make(chan *MdbCN, 1000)
 )
 
 type CityIpBlock struct {
@@ -142,6 +142,7 @@ func ReadPureCsvFile(filename string)  {
 		if err == io.EOF {
 			break
 		}
+
 		PureAreas = append(PureAreas, strs)
 	}
 }
@@ -269,8 +270,8 @@ func Generatemmdb(pathbase string)  {
 			Subdivision1Name: citylocation.Subdivision1Name,
 			Subdivision2Name: citylocation.Subdivision2Name,
 		}
-		//if city.CountryIsoCode != "CN" || strings.Index(k, ":" ) != -1 {
-		if strings.Index(k, ":" ) != -1 {
+		if city.CountryIsoCode != "CN" || strings.Index(k, ":" ) != -1 {
+		//if strings.Index(k, ":" ) != -1 {
 			// 不是cn的ip范围 或者 ipv6范围 先插入
 			_, ipnet, err := net.ParseCIDR(k)
 			if err != nil {
@@ -368,10 +369,12 @@ func SendPureCity()  {
 	for _, city := range PureAreas {
 		pIpStartStr := city[0]
 		pIpEndStr := city[1]
+
 		pMin, err := ip2Uint32(pIpStartStr)
 		if err != nil {
 			log.Panic(err)
 		}
+
 		pMax, err := ip2Uint32(pIpEndStr)
 		if err != nil {
 			log.Panic(err)
@@ -427,6 +430,7 @@ func MergeCity()  {
 			var err error
 			if getPureCity {
 				pureIpint, err = ip2Uint32(pureIpStr)
+
 				if err != nil {
 					log.Panic(err)
 				}
@@ -442,6 +446,9 @@ func MergeCity()  {
 				getMdbCity = true
 				mergerChannel <- mdbCity
 			} else if pureIpint == mdbIpInt {
+
+
+				min, _, _, _:=ipCidr2Uint32("103.3.120.0/32")
 				getMdbCity = true
 				getPureCity = true
 				newCity := &reader.City{
@@ -465,11 +472,17 @@ func MergeCity()  {
 					NetWork: mdbCity.NetWork,
 					City: newCity,
 				}
-				if  pureDistrict != "" || newCity.Name == "" || newCity.Subdivision1Name == "" {
+				//if  pureDistrict != "" || newCity.Name == "" || newCity.Subdivision1Name == "" {
+				//	newCity.Subdivision2Name = pureDistrict
+				//	newCity.Name = pureCit
+				//	newCity.Subdivision1Name = pureProvince
+				//}
+				if  pureProvince != "" {
 					newCity.Subdivision2Name = pureDistrict
 					newCity.Name = pureCit
 					newCity.Subdivision1Name = pureProvince
 				}
+
 				mergerChannel <- city
 			} else {
 				// mdbIpInt > pureIpint

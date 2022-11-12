@@ -59,7 +59,7 @@ func ConvertTxt2Csv(pathbase string)  {
 		log.Panic(err)
 	}
 	defer cityReader.Close()
-	f, err := os.Open(filepath.Join(pathbase,"pure.txt"))
+	f, err := os.Open(filepath.Join(pathbase,"pure/pure.txt"))
 	if err != nil {
 		log.Panic(err)
 	}
