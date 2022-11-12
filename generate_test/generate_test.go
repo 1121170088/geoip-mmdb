@@ -32,9 +32,9 @@ func TestConvert(t *testing.T) {
 func Test_Generate_Merge_City(t *testing.T) {
 	merge_pure_city_mmdb.Generatemmdb("../merge_pure_city_mmdb")
 }
-func Test_Generate_Merge_City2(t *testing.T) {
-	merge_pure_city_mmdb.Generatemmdb2("../merge_pure_city_mmdb")
-}
+//func Test_Generate_Merge_City2(t *testing.T) {
+//	merge_pure_city_mmdb.Generatemmdb2("../merge_pure_city_mmdb")
+//}
 func TestReader(t *testing.T) {
 	cityReader, err := reader.Open("../GeoLite2-City.mmdb")
 	require.NoError(t, err)
