@@ -446,9 +446,7 @@ func MergeCity()  {
 				getMdbCity = true
 				mergerChannel <- mdbCity
 			} else if pureIpint == mdbIpInt {
-
-
-				min, _, _, _:=ipCidr2Uint32("103.3.120.0/32")
+				
 				getMdbCity = true
 				getPureCity = true
 				newCity := &reader.City{
