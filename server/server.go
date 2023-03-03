@@ -94,17 +94,19 @@ func Start(addr, tldFile string)  {
 			fwdAddress := request.Header.Get("X-Forwarded-For")
 			if fwdAddress != "" {
 				ipAddress := fwdAddress
-				ips := strings.Split(fwdAddress, ", ")
+				ips := strings.Split(fwdAddress, ",")
 				if len(ips) > 1 {
 					ipAddress = ips[0]
 				}
 				remoteAddr = ipAddress
 			}
-			idx := strings.Index(remoteAddr, ":")
-			if idx != -1 {
-				ipStr = remoteAddr[0: idx]
-			} else {
+			strs := strings.Split(remoteAddr, ":")
+			if len(strs) > 1 {
+				// should be ipv6
 				ipStr = remoteAddr
+			} else {
+				// should be ip:port
+				ipStr = strs[0]
 			}
 
 		}
