@@ -14,7 +14,11 @@ geoip-mmdb -s
 
 curl http://127.0.0.1:9080/domains -v -d "[\"example.com\"]" 查域名解析  
 
-curl http://127.0.0.1:9080/ip?1.1.1.1 查ip  
+~~curl http://127.0.0.1:9080/ip?1.1.1.1 查ip~~ 
 
-curl http://127.0.0.1:9080/ip  查自己  
+~~curl http://127.0.0.1:9080/ip  查自己~~ 
+
+curl http://127.0.0.1:9080/1.1.1.1
+
+curl http://127.0.0.1:9080
 
