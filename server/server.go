@@ -81,14 +81,16 @@ func Start(addr, tldFile string)  {
 		writer.Write(bytes)
 
 	})
-	http.HandleFunc("/ip", func(writer http.ResponseWriter, request *http.Request) {
+	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		header := writer.Header()
 		header.Add("Content-Type", "application/json;charset=UTF-8")
 		ipStr := ""
-		rawQuery := request.URL.RawQuery
-		rawQuery = strings.TrimSpace(rawQuery)
-		if rawQuery != "" {
-			ipStr = rawQuery
+		uri := request.RequestURI
+		uri = strings.TrimSpace(uri)
+		uri = uri[1:]
+
+		if uri != "" {
+			ipStr = uri
 		} else {
 			remoteAddr := request.RemoteAddr
 			fwdAddress := request.Header.Get("X-Forwarded-For")
@@ -108,8 +110,8 @@ func Start(addr, tldFile string)  {
 				// should be ip:port
 				ipStr = strs[0]
 			}
-
 		}
+
 		result := search.Search(ipStr)
 		bytes, err := json.Marshal(result)
 		if err != nil {

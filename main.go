@@ -37,6 +37,7 @@ func init() {
 
 func main()  {
 
+	//serverMode = true
 	search.Init(asnFile, cityFile)
 
 
