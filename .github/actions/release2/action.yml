@@ -42,7 +42,11 @@ runs:
 
         rm -rf merge_pure_city_mmdb/*.csv
         cp GeoLite2-City-CSV_*/*.csv merge_pure_city_mmdb/
-        unzip pure.zip
+
+        mkdir pure
+        wget -P pure https://github.com/1121170088/qqwry/releases/download/v1.0.0/pure.zip
+        unzip pure/pure.zip -d pure
+
         ls -alh
         pwd
         go test -run TestConvert generate_test/generate_test.go
