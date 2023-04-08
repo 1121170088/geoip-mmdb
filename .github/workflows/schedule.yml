@@ -1,6 +1,6 @@
 on:
   schedule:
-    - cron: '0  20 * * * '
+    - cron: '0  0 */3 * *'
 jobs:
   release:
     runs-on: ubuntu-latest
