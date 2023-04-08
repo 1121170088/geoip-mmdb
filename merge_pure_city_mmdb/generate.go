@@ -475,9 +475,18 @@ func MergeCity()  {
 				//	newCity.Name = pureCit
 				//	newCity.Subdivision1Name = pureProvince
 				//}
-				if  pureProvince != "" {
+				//if  pureProvince != "" {
+				//	newCity.Subdivision2Name = pureDistrict
+				//	newCity.Name = pureCit
+				//	newCity.Subdivision1Name = pureProvince
+				//}
+				if pureDistrict != "" {
 					newCity.Subdivision2Name = pureDistrict
+				}
+				if pureCit != "" {
 					newCity.Name = pureCit
+				}
+				if pureProvince != "" {
 					newCity.Subdivision1Name = pureProvince
 				}
 
