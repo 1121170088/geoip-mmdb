@@ -27,6 +27,8 @@ runs:
 
         GeoLite2UpdatedDate=$(ls -d GeoLite2-ASN-CSV_* | cut -d '_' -f 2)
         curl https://api.github.com/repos/1121170088/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
+        ls -alh
+        cat body.txt
         cat body.txt | grep $GeoLite2UpdatedDate
         if [ $? == 0 ]
         then
