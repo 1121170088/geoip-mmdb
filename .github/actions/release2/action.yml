@@ -31,6 +31,7 @@ runs:
         cat body.txt
         echo "GeoLite2UpdatedDate:"$GeoLite2UpdatedDate
         cat ./body.txt | grep "$GeoLite2UpdatedDate"
+        echo "到这了"
         if [ $? == 0 ]
         then
         	echo "版本已处理，退出"
