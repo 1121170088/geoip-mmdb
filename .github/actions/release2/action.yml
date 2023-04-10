@@ -29,8 +29,8 @@ runs:
         curl https://api.github.com/repos/1121170088/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
         ls -alh
         cat body.txt
-        cat ./body.txt | grep "$GeoLite2UpdatedDate"
         echo "GeoLite2UpdatedDate:"$GeoLite2UpdatedDate
+        cat ./body.txt | grep "$GeoLite2UpdatedDate"
         if [ $? == 0 ]
         then
         	echo "版本已处理，退出"
