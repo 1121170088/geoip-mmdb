@@ -29,15 +29,13 @@ runs:
         curl https://api.github.com/repos/1121170088/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
         ls -alh
         cat body.txt
-        cat body.txt | grep $GeoLite2UpdatedDate
+        cat ./body.txt | grep "$GeoLite2UpdatedDate"
         if [ $? == 0 ]
         then
         	echo "版本已处理，退出"
             exit 0
-        else
-        	echo "处理新版本"
         fi
-
+        echo "处理新版本"
         mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
 
         rm -rf generate_city_mmdb/*.csv
