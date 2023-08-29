@@ -151,6 +151,9 @@ func insertData(iosCode string, ipnet *net.IPNet) {
 		"country":            mmdbtype.Map{
 			"iso_code":             mmdbtype.String(iosCode),
 		},
+		"registered_country":  mmdbtype.Map{
+			"iso_code":             mmdbtype.String(iosCode),
+		},
 	}
 	err := writer.Insert(ipnet, data)
 	if err != nil {
