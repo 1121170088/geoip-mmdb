@@ -17,14 +17,16 @@ runs:
         sh ./generate_asn_mmdb/1.bat
         mv *.txt generate_asn_mmdb/
         rm -rf generate_asn_mmdb/*.csv
-        curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-ASN-CSV.zip
+        #curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-ASN-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-ASN-CSV.zip
+        curl -O -J -L -u ${{ inputs.accountId }}:${{ inputs.licenseKey }} "https://download.maxmind.com/geoip/databases/GeoLite2-ASN-CSV/download?suffix=zip"
         
         pwd
         ls -alh
-        env
+        #env
         
-        unzip GeoLite2-ASN-CSV.zip
-
+        #unzip GeoLite2-ASN-CSV.zip
+        unzip GeoLite2-ASN-CSV_*.zip
+        rm -rf GeoLite2-ASN-CSV_*.zip
         GeoLite2UpdatedDate=$(ls -d GeoLite2-ASN-CSV_* | cut -d '_' -f 2)
         curl https://api.github.com/repos/1121170088/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
         ls -alh
@@ -40,15 +42,21 @@ runs:
         mv GeoLite2-ASN-CSV_*/*.csv generate_asn_mmdb/
 
         rm -rf generate_city_mmdb/*.csv
-        curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-City-CSV.zip
-        unzip GeoLite2-City-CSV.zip
+        #curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-City-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-City-CSV.zip
+        #unzip GeoLite2-City-CSV.zip
+        curl -O -J -L -u ${{ inputs.accountId }}:${{ inputs.licenseKey }} "https://download.maxmind.com/geoip/databases/GeoLite2-City-CSV/download?suffix=zip"
+        unzip GeoLite2-City-CSV_*.zip
+        rm -rf GeoLite2-City-CSV_*.zip
         cp GeoLite2-City-CSV_*/*.csv generate_city_mmdb/
         go test -run Test_Generate_City generate_test/generate_test.go
 
         rm -rf generate_country_mmdb/*.csv
         rm -rf generate_country_mmdb/*.txt
-        curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-Country-CSV.zip
-        unzip GeoLite2-Country-CSV.zip
+        #curl "https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country-CSV&license_key=${{ inputs.licenseKey }}&suffix=zip" -o GeoLite2-Country-CSV.zip
+        #unzip GeoLite2-Country-CSV.zip
+        curl -O -J -L -u ${{ inputs.accountId }}:${{ inputs.licenseKey }} "https://download.maxmind.com/geoip/databases/GeoLite2-Country-CSV/download?suffix=zip"
+        unzip GeoLite2-Country-CSV_*.zip
+        rm -rf GeoLite2-Country-CSV_*.zip
         mv GeoLite2-Country*/*.csv generate_country_mmdb
         sh ./generate_country_mmdb/1.bat
         mv *.txt generate_country_mmdb

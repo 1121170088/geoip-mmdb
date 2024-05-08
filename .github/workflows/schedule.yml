@@ -9,3 +9,4 @@ jobs:
       - uses: ./.github/actions/release2
         with:
           licenseKey:  ${{ secrets.MMDB_LICENSEKEY }}
+          accountId: ${{ secrets.MMDB_ACCOUNTID }}
