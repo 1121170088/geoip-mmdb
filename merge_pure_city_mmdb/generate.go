@@ -12,63 +12,66 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 )
 
 var (
-	cityIpBlocks = make(map[string]*CityIpBlock)
+	cityIpBlocks  = make(map[string]*CityIpBlock)
 	CityLocations = make(map[string]*CityLocation)
 
-	PureAreas = make([][]string, 0)
-	MdbAreas = make([]*MdbCN, 0)
+	PureAreas      = make([][]string, 0)
+	Ip2RegionAreas = make([][]string, 0)
+	MdbAreas       = make([]*MdbCN, 0)
 
 	writer *mmdbwriter.Tree
 
-	done = make(chan struct{}, 0)
+	done            = make(chan struct{}, 0)
 	pureCityChannel = make(chan []string, 1000)
-	mdbCityChannel = make(chan *MdbCN, 1000)
-	mergerChannel = make(chan *MdbCN, 1000)
+	ip2CityChannel  = make(chan []string, 1000)
+	mdbCityChannel  = make(chan *MdbCN, 1000)
+	mergerChannel   = make(chan *MdbCN, 1000)
 )
 
 type CityIpBlock struct {
-	NetWork string
-	GeoNameId string
-	RegisteredCountryGeonameId string
-	RepresentedCountryGeonameId string
-	IsAnonymousProxy string
-	IsSatelliteProvider string
-	PostalCode string
-	Latitude string
-	Longitude string
-	AccuracyRadius string
+	NetWork                      string
+	GeoNameId                    string
+	RegisteredCountryGeonameId   string
+	RepresentedCountryGeonameId  string
+	IsAnonymousProxy             string
+	IsSatelliteProvider          string
+	PostalCode                   string
+	Latitude                     string
+	Longitude                    string
+	AccuracyRadius               string
 	AutonomousSystemOrganization string
 }
 type CityLocation struct {
-	NetWork string
-	GeoNameId string
-	LocaleCode string
-	ContinentCode string
-	ContinentName string
-	CountryIsoCode string
-	CountryName string
+	NetWork             string
+	GeoNameId           string
+	LocaleCode          string
+	ContinentCode       string
+	ContinentName       string
+	CountryIsoCode      string
+	CountryName         string
 	Subdivision1IsoCode string
-	Subdivision1Name string
+	Subdivision1Name    string
 	Subdivision2IsoCode string
-	Subdivision2Name string
-	CityName string
-	MetroCode string
-	TimeZone string
-	IsInEuropeanUnion string
+	Subdivision2Name    string
+	CityName            string
+	MetroCode           string
+	TimeZone            string
+	IsInEuropeanUnion   string
 }
 
 type MdbCN struct {
 	NetWork string
-	City *reader.City
+	City    *reader.City
 }
 
-func ReadCityIpBlockCsvFile(filename string)  {
+func ReadCityIpBlockCsvFile(filename string) {
 	csvFile, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -97,7 +100,7 @@ func ReadCityIpBlockCsvFile(filename string)  {
 	}
 }
 
-func ReadCityLocationCsvFile(filename string)  {
+func ReadCityLocationCsvFile(filename string) {
 	csvFile, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -129,7 +132,7 @@ func ReadCityLocationCsvFile(filename string)  {
 		CityLocations[citylocation.GeoNameId] = &citylocation
 	}
 }
-func ReadPureCsvFile(filename string)  {
+func ReadPureCsvFile(filename string) {
 	csvFile, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -147,7 +150,25 @@ func ReadPureCsvFile(filename string)  {
 	}
 }
 
-func Generatemmdb2(pathbase string)  {
+func ReadIp2RegionCsvFile(filename string) {
+	csvFile, err := os.Open(filename)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer csvFile.Close()
+	reader := csv.NewReader(csvFile)
+	reader.Read()
+	for {
+		strs, err := reader.Read()
+		if err == io.EOF {
+			break
+		}
+
+		Ip2RegionAreas = append(Ip2RegionAreas, strs)
+	}
+}
+
+func Generatemmdb2(pathbase string) {
 
 	readFiles(pathbase)
 
@@ -177,8 +198,8 @@ func Generatemmdb2(pathbase string)  {
 				Longitude      float64 `maxminddb:"longitude"`
 			}{
 				AccuracyRadius: uint16(str2int(v.AccuracyRadius)),
-				Latitude: str2float64(v.Latitude),
-				Longitude: str2float64(v.Longitude),
+				Latitude:       str2float64(v.Latitude),
+				Longitude:      str2float64(v.Longitude),
 			},
 			Subdivision1Name: citylocation.Subdivision1Name,
 			Subdivision2Name: citylocation.Subdivision2Name,
@@ -192,7 +213,7 @@ func Generatemmdb2(pathbase string)  {
 
 	for _, pureCity := range PureAreas {
 		if pureCity[4] != "" {
-			startInt,err := ip2Uint32(pureCity[0])
+			startInt, err := ip2Uint32(pureCity[0])
 			if err != nil {
 				log.Panic(err)
 			}
@@ -234,7 +255,7 @@ func Generatemmdb2(pathbase string)  {
 	}
 }
 
-func Generatemmdb(pathbase string)  {
+func Generatemmdb(pathbase string) {
 
 	readFiles(pathbase)
 
@@ -264,14 +285,14 @@ func Generatemmdb(pathbase string)  {
 				Longitude      float64 `maxminddb:"longitude"`
 			}{
 				AccuracyRadius: uint16(str2int(v.AccuracyRadius)),
-				Latitude: str2float64(v.Latitude),
-				Longitude: str2float64(v.Longitude),
+				Latitude:       str2float64(v.Latitude),
+				Longitude:      str2float64(v.Longitude),
 			},
 			Subdivision1Name: citylocation.Subdivision1Name,
 			Subdivision2Name: citylocation.Subdivision2Name,
 		}
-		if city.CountryIsoCode != "CN" || strings.Index(k, ":" ) != -1 {
-		//if strings.Index(k, ":" ) != -1 {
+		if city.CountryIsoCode != "CN" || strings.Index(k, ":") != -1 {
+			//if strings.Index(k, ":" ) != -1 {
 			// 不是cn的ip范围 或者 ipv6范围 先插入
 			_, ipnet, err := net.ParseCIDR(k)
 			if err != nil {
@@ -287,18 +308,19 @@ func Generatemmdb(pathbase string)  {
 		}
 	}
 
-
 	SortAscMdbAreaByIp()
 	log.Println("sorted mdb cities")
 	SortAscPureArea()
 	log.Println("sorted pure cities")
+	SortAscIp2RegionArea()
 
 	go SendMdbCity()
 	go SendPureCity()
+	go SendIp2RegionCity()
 	go MergeCity()
 	go HandMergeChannel()
 
-	<- done
+	<-done
 
 	fh, err := os.Create("../GeoLite2-merge-City.mmdb")
 	if err != nil {
@@ -311,7 +333,7 @@ func Generatemmdb(pathbase string)  {
 	}
 }
 
-func SortAscMdbAreaByIp()  {
+func SortAscMdbAreaByIp() {
 	sort.Slice(MdbAreas, func(i, j int) bool {
 		later := MdbAreas[i]
 		former := MdbAreas[j]
@@ -329,7 +351,7 @@ func SortAscMdbAreaByIp()  {
 	})
 }
 
-func SortAscPureArea()  {
+func SortAscPureArea() {
 	sort.Slice(PureAreas, func(i, j int) bool {
 		later := PureAreas[i]
 		former := PureAreas[j]
@@ -344,14 +366,29 @@ func SortAscPureArea()  {
 		return laterIp < formerIp
 	})
 }
-
-func SendMdbCity()  {
-	for _, city:= range MdbAreas {
-		mmin, mmax, _,  err := ipCidr2Uint32(city.NetWork)
+func SortAscIp2RegionArea() {
+	sort.Slice(Ip2RegionAreas, func(i, j int) bool {
+		later := PureAreas[i]
+		former := PureAreas[j]
+		laterIp, err := ip2Uint32(later[0])
 		if err != nil {
 			log.Panic(err)
 		}
-		for i:=mmin; i <= mmax; i++ {
+		formerIp, err := ip2Uint32(former[0])
+		if err != nil {
+			log.Panic(err)
+		}
+		return laterIp < formerIp
+	})
+}
+
+func SendMdbCity() {
+	for _, city := range MdbAreas {
+		mmin, mmax, _, err := ipCidr2Uint32(city.NetWork)
+		if err != nil {
+			log.Panic(err)
+		}
+		for i := mmin; i <= mmax; i++ {
 			mdbCN := MdbCN{
 				NetWork: int2ip(i).String(),
 				City:    city.City,
@@ -365,7 +402,7 @@ func SendMdbCity()  {
 	close(mdbCityChannel)
 	log.Printf("send mdc city finished")
 }
-func SendPureCity()  {
+func SendPureCity() {
 	for _, city := range PureAreas {
 		pIpStartStr := city[0]
 		pIpEndStr := city[1]
@@ -379,7 +416,7 @@ func SendPureCity()  {
 		if err != nil {
 			log.Panic(err)
 		}
-		for i:=pMin; i <= pMax; i++ {
+		for i := pMin; i <= pMax; i++ {
 
 			pureCity := []string{
 				int2ip(i).String(),
@@ -393,7 +430,36 @@ func SendPureCity()  {
 	close(pureCityChannel)
 	log.Printf("send pure city finished")
 }
-func MergeCity()  {
+
+func SendIp2RegionCity() {
+	for _, city := range Ip2RegionAreas {
+		pIpStartStr := city[0]
+		pIpEndStr := city[1]
+
+		pMin, err := ip2Uint32(pIpStartStr)
+		if err != nil {
+			log.Panic(err)
+		}
+
+		pMax, err := ip2Uint32(pIpEndStr)
+		if err != nil {
+			log.Panic(err)
+		}
+		for i := pMin; i <= pMax; i++ {
+
+			ip2 := []string{
+				int2ip(i).String(),
+				city[2],
+				city[3],
+				city[4],
+			}
+			ip2CityChannel <- ip2
+		}
+	}
+	close(ip2CityChannel)
+	log.Printf("send ip2region city finished")
+}
+func MergeCity() {
 	var pureCity []string
 	var pureChannelDone = false
 	var pureIpint uint32 = 0
@@ -403,29 +469,45 @@ func MergeCity()  {
 	var mdbCityChannelDone = false
 	var mdbIpInt uint32 = 0
 	var getMdbCity = true
+
+	var ip2 []string
+	var ip2ChannelDone = false
+	var ip2Ipint uint32 = 0
+	var getip2City = true
+
 	for {
 		if getPureCity {
-			pureCity = <- pureCityChannel
+			pureCity = <-pureCityChannel
 		}
 		if pureCity == nil {
 			pureChannelDone = true
 		}
 		if getMdbCity {
-			mdbCity = <- mdbCityChannel
+			mdbCity = <-mdbCityChannel
 		}
 		if mdbCity == nil {
 			mdbCityChannelDone = true
 		}
-
-		if pureChannelDone && mdbCityChannelDone {
+		if getip2City {
+			ip2 = <-pureCityChannel
+		}
+		if ip2 == nil {
+			ip2ChannelDone = true
+		}
+		if pureChannelDone && mdbCityChannelDone && ip2ChannelDone {
 			break
 		}
 
-		if !pureChannelDone && !mdbCityChannelDone {
+		if !pureChannelDone && !mdbCityChannelDone && !ip2ChannelDone {
 			pureIpStr := pureCity[0]
 			pureProvince := pureCity[1]
 			pureCit := pureCity[2]
 			pureDistrict := pureCity[3]
+
+			ip2IpStr := ip2[0]
+			ip2Province := ip2[1]
+			ip2Cit := ip2[2]
+			ip2District := ip2[3]
 
 			var err error
 			if getPureCity {
@@ -441,14 +523,17 @@ func MergeCity()  {
 					log.Panic(err)
 				}
 			}
-			if pureIpint > mdbIpInt {
-				getPureCity = false
-				getMdbCity = true
-				mergerChannel <- mdbCity
-			} else if pureIpint == mdbIpInt {
+			if getip2City {
+				ip2Ipint, err = ip2Uint32(ip2IpStr)
+				if err != nil {
+					log.Panic(err)
+				}
+			}
 
+			if pureIpint == mdbIpInt && pureIpint == ip2Ipint {
 				getMdbCity = true
 				getPureCity = true
+				getip2City = true
 				newCity := &reader.City{
 					Name:           mdbCity.City.Name,
 					ContinentName:  mdbCity.City.ContinentName,
@@ -468,46 +553,81 @@ func MergeCity()  {
 				}
 				city := &MdbCN{
 					NetWork: mdbCity.NetWork,
-					City: newCity,
+					City:    newCity,
 				}
-				//if  pureDistrict != "" || newCity.Name == "" || newCity.Subdivision1Name == "" {
-				//	newCity.Subdivision2Name = pureDistrict
-				//	newCity.Name = pureCit
-				//	newCity.Subdivision1Name = pureProvince
-				//}
-				//if  pureProvince != "" {
-				//	newCity.Subdivision2Name = pureDistrict
-				//	newCity.Name = pureCit
-				//	newCity.Subdivision1Name = pureProvince
-				//}
+				district := newCity.Subdivision2Name
 				if pureDistrict != "" {
-					newCity.Subdivision2Name = pureDistrict
+					district = pureDistrict
+				} else if ip2District != "" {
+					district = ip2District
 				}
+				newCity.Subdivision2Name = district
+
+				cit := newCity.Name
 				if pureCit != "" {
-					newCity.Name = pureCit
+					cit = pureCit
+				} else if ip2Cit != "" {
+					cit = ip2Cit
 				}
+				newCity.Name = cit
+
+				prov := newCity.Subdivision1Name
 				if pureProvince != "" {
-					newCity.Subdivision1Name = pureProvince
+					prov = pureProvince
+				} else if ip2Province != "" {
+					prov = ip2Province
 				}
+				newCity.Subdivision1Name = prov
 
 				mergerChannel <- city
 			} else {
-				// mdbIpInt > pureIpint
-				getMdbCity = false
-				getPureCity = true
+
+				ipints := [3]uint32{pureIpint, mdbIpInt, ip2Ipint}
+				slices.Sort(ipints[:])
+
+				if ipints[0] == pureIpint {
+					getPureCity = true
+					getMdbCity = false
+					getip2City = false
+					mergerChannel <- mdbCity
+				} else if ipints[0] == mdbIpInt {
+					getPureCity = false
+					getMdbCity = true
+					getip2City = false
+					mergerChannel <- mdbCity
+				} else {
+					getPureCity = false
+					getMdbCity = false
+					getip2City = true
+					mergerChannel <- mdbCity
+				}
 			}
-		} else if mdbCityChannelDone && !pureChannelDone {
-			getPureCity = true
-			<- pureCityChannel
-		} else if !mdbCityChannelDone && pureChannelDone {
+		} else if mdbCityChannelDone {
+			if !pureChannelDone {
+				getPureCity = true
+				<-pureCityChannel
+			}
+			if !ip2ChannelDone {
+				getip2City = true
+				<-ip2CityChannel
+			}
+		} else if !mdbCityChannelDone {
 			getMdbCity = true
 			mergerChannel <- mdbCity
+			if !pureChannelDone {
+				getPureCity = true
+				<-pureCityChannel
+			}
+			if !ip2ChannelDone {
+				getip2City = true
+				<-ip2CityChannel
+			}
 		}
 	}
 	close(mergerChannel)
 	log.Printf("merge city finished")
 }
-func HandMergeChannel()  {
+func HandMergeChannel() {
 	var theCity *reader.City
 	var startIp uint32
 	var preIp uint32
@@ -515,8 +635,7 @@ func HandMergeChannel()  {
 	var lastIp uint32
 	var pre4thByte uint8
 
-
-	for city:= range mergerChannel {
+	for city := range mergerChannel {
 		if city == nil {
 			break
 		}
@@ -541,10 +660,10 @@ func HandMergeChannel()  {
 			if (theCity.Subdivision1Name != city.City.Subdivision1Name &&
 				theCity.Name != city.City.Name &&
 				theCity.Subdivision2Name != city.City.Subdivision2Name) ||
-				preIp + 1 != lastIp || current4thByte <= pre4thByte {
+				preIp+1 != lastIp || current4thByte <= pre4thByte {
 
 				cidr := getCidrStr(startIp, preIp)
-				_, ipnet,  err := net.ParseCIDR(cidr)
+				_, ipnet, err := net.ParseCIDR(cidr)
 				if err != nil {
 					log.Panic(err)
 				}
@@ -562,13 +681,13 @@ func HandMergeChannel()  {
 	}
 	if theCity != nil {
 		cidr := getCidrStr(startIp, preIp)
-		_, ipnet,  err := net.ParseCIDR(cidr)
+		_, ipnet, err := net.ParseCIDR(cidr)
 		if err != nil {
 			log.Panic(err)
 		}
 		insertData(ipnet, theCity)
 	}
-	done<- struct{}{}
+	done <- struct{}{}
 	log.Printf("HandMergeChannel finished")
 }
 func readFiles(pathbase string) {
@@ -576,6 +695,7 @@ func readFiles(pathbase string) {
 	ReadCityIpBlockCsvFile(filepath.Join(pathbase, "GeoLite2-City-Blocks-IPv6.csv"))
 	ReadCityLocationCsvFile(filepath.Join(pathbase, "GeoLite2-City-Locations-zh-CN.csv"))
 	ReadPureCsvFile(filepath.Join(pathbase, "pure.csv"))
+	ReadIp2RegionCsvFile(filepath.Join(pathbase, "ip2region.csv"))
 }
 
 func getCityLocation(v *CityIpBlock, k string) *CityLocation {
@@ -583,7 +703,7 @@ func getCityLocation(v *CityIpBlock, k string) *CityLocation {
 	if !ok {
 		log.Printf("city location not found %s", k)
 		citylocation = &CityLocation{
-			NetWork: k,
+			NetWork:             k,
 			GeoNameId:           "",
 			LocaleCode:          "",
 			ContinentCode:       "",
@@ -605,7 +725,6 @@ func getCityLocation(v *CityIpBlock, k string) *CityLocation {
 	return citylocation
 }
 
-
 func insertData(ipnet *net.IPNet, city *reader.City) {
 	data := mmdbtype.Map{
 		"name":             mmdbtype.String(city.Name),
@@ -617,8 +736,8 @@ func insertData(ipnet *net.IPNet, city *reader.City) {
 			"latitude":        mmdbtype.Float64(city.Location.Latitude),
 			"longitude":       mmdbtype.Float64(city.Location.Longitude),
 		},
-		"subdivision_1_name":             mmdbtype.String(city.Subdivision1Name),
-		"subdivision_2_name":             mmdbtype.String(city.Subdivision2Name),
+		"subdivision_1_name": mmdbtype.String(city.Subdivision1Name),
+		"subdivision_2_name": mmdbtype.String(city.Subdivision2Name),
 	}
 	err := writer.Insert(ipnet, data)
 	if err != nil {
@@ -635,14 +754,14 @@ func str2int(str string) int {
 }
 
 func str2float64(str string) float64 {
-	f ,err := strconv.ParseFloat(str,65)
+	f, err := strconv.ParseFloat(str, 65)
 	if err != nil {
 		return 0.0
 	}
 	return f
 }
 
-func getCidrStr(start, end uint32) string  {
+func getCidrStr(start, end uint32) string {
 	ip1 := int2ip(start)
 	ip2 := int2ip(end)
 	maxLen := 32
@@ -662,36 +781,36 @@ func ipCidr2Uint32(cidr string) (min uint32, max uint32, hostNum uint32, err err
 	strs := strings.Split(cidr, "/")
 	ipstr := strs[0]
 	maskstr := strs[1]
-	bs:= strings.Split(ipstr, ".")
+	bs := strings.Split(ipstr, ".")
 	var b1 int
 	var b2 int
 	var b3 int
 	var b4 int
 	var mask int
-	mask, err= strconv.Atoi(maskstr)
+	mask, err = strconv.Atoi(maskstr)
 	if err != nil {
 		return
 	}
-	b1, err= strconv.Atoi(bs[0])
+	b1, err = strconv.Atoi(bs[0])
 	if err != nil {
 		return
 	}
-	b2, err= strconv.Atoi(bs[1])
+	b2, err = strconv.Atoi(bs[1])
 	if err != nil {
 		return
 	}
-	b3, err= strconv.Atoi(bs[2])
+	b3, err = strconv.Atoi(bs[2])
 	if err != nil {
 		return
 	}
-	b4, err= strconv.Atoi(bs[3])
+	b4, err = strconv.Atoi(bs[3])
 	if err != nil {
 		return
 	}
 	min = uint32(b1)<<24 |
-		uint32(b2) << 16 |
-		uint32(b3) << 8 |
-		uint32(b4) & (0xffffffff << (32 - mask))
+		uint32(b2)<<16 |
+		uint32(b3)<<8 |
+		uint32(b4)&(0xffffffff<<(32-mask))
 	hostNum = 0xffffffff >> mask
 	max = min + hostNum
 	return
@@ -699,30 +818,30 @@ func ipCidr2Uint32(cidr string) (min uint32, max uint32, hostNum uint32, err err
 
 func ip2Uint32(ipstr string) (ipint uint32, err error) {
 
-	bs:= strings.Split(ipstr, ".")
+	bs := strings.Split(ipstr, ".")
 	var b1 int
 	var b2 int
 	var b3 int
 	var b4 int
-	b1, err= strconv.Atoi(bs[0])
+	b1, err = strconv.Atoi(bs[0])
 	if err != nil {
 		return
 	}
-	b2, err= strconv.Atoi(bs[1])
+	b2, err = strconv.Atoi(bs[1])
 	if err != nil {
 		return
 	}
-	b3, err= strconv.Atoi(bs[2])
+	b3, err = strconv.Atoi(bs[2])
 	if err != nil {
 		return
 	}
-	b4, err= strconv.Atoi(bs[3])
+	b4, err = strconv.Atoi(bs[3])
 	if err != nil {
 		return
 	}
 	ipint = uint32(b1)<<24 |
-		uint32(b2) << 16 |
-		uint32(b3) << 8 |
+		uint32(b2)<<16 |
+		uint32(b3)<<8 |
 		uint32(b4)
 	return
 }

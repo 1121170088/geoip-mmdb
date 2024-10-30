@@ -5,6 +5,7 @@ go 1.21
 require (
 	github.com/1121170088/find-domain v1.0.5
 	github.com/maxmind/mmdbwriter v0.0.0-20220830183856-fffdfa44ff0b
+	github.com/orestonce/Ip2regionTool v1.6.1
 	github.com/oschwald/maxminddb-golang v1.10.0
 	github.com/stretchr/testify v1.8.0
 )
