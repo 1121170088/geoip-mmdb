@@ -83,6 +83,9 @@ func WriteCsv(list []Ip2regionTool.IpRangeItem, csrwriter *csv.Writer) {
 		if ss[3] == "0" {
 			ss[3] = ""
 		}
+		if ss[3] == "" {
+			continue
+		}
 		record := []string{uint32ToIp(one.LowU32).String(), uint32ToIp(one.HighU32).String(),
 			ss[2], ss[3], ss[1], ""}
 		csrwriter.Write(record)

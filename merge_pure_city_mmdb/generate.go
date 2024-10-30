@@ -489,7 +489,7 @@ func MergeCity() {
 			mdbCityChannelDone = true
 		}
 		if getip2City {
-			ip2 = <-pureCityChannel
+			ip2 = <-ip2CityChannel
 		}
 		if ip2 == nil {
 			ip2ChannelDone = true
@@ -585,22 +585,66 @@ func MergeCity() {
 				ipints := [3]uint32{pureIpint, mdbIpInt, ip2Ipint}
 				slices.Sort(ipints[:])
 
+				newCity := &reader.City{
+					Name:           mdbCity.City.Name,
+					ContinentName:  mdbCity.City.ContinentName,
+					CountryName:    mdbCity.City.CountryName,
+					CountryIsoCode: mdbCity.City.CountryIsoCode,
+					Location: struct {
+						AccuracyRadius uint16  `maxminddb:"accuracy_radius"`
+						Latitude       float64 `maxminddb:"latitude"`
+						Longitude      float64 `maxminddb:"longitude"`
+					}{
+						AccuracyRadius: mdbCity.City.Location.AccuracyRadius,
+						Latitude:       mdbCity.City.Location.Latitude,
+						Longitude:      mdbCity.City.Location.Longitude,
+					},
+					Subdivision1Name: mdbCity.City.Subdivision1Name,
+					Subdivision2Name: mdbCity.City.Subdivision2Name,
+				}
+				city := &MdbCN{
+					NetWork: mdbCity.NetWork,
+					City:    newCity,
+				}
+
+				if pureIpint == mdbIpInt {
+					if pureDistrict != "" {
+						newCity.Subdivision2Name = pureDistrict
+					}
+					if pureProvince != "" {
+						newCity.Subdivision1Name = pureProvince
+					}
+					if pureCit != "" {
+						newCity.Name = pureCit
+					}
+				}
+
+				if ip2Ipint == mdbIpInt {
+					if ip2District != "" {
+						newCity.Subdivision2Name = ip2District
+					}
+					if ip2Province != "" {
+						newCity.Subdivision1Name = ip2Province
+					}
+					if ip2Cit != "" {
+						newCity.Name = ip2Cit
+					}
+				}
+				getPureCity = false
+				getMdbCity = false
+				getip2City = false
 				if ipints[0] == pureIpint {
 					getPureCity = true
-					getMdbCity = false
-					getip2City = false
-					mergerChannel <- mdbCity
-				} else if ipints[0] == mdbIpInt {
-					getPureCity = false
-					getMdbCity = true
-					getip2City = false
-					mergerChannel <- mdbCity
-				} else {
-					getPureCity = false
-					getMdbCity = false
-					getip2City = true
-					mergerChannel <- mdbCity
 				}
+				if ipints[0] == mdbIpInt {
+					getMdbCity = true
+				}
+				if ipints[0] == ip2Ipint {
+					getip2City = true
+				}
+
+				mergerChannel <- city
+
 			}
 		} else if mdbCityChannelDone {
 			if !pureChannelDone {
