@@ -65,9 +65,9 @@ runs:
         cp GeoLite2-City-CSV_*/*.csv merge_pure_city_mmdb/
 
         pureUpdatedDate=$(curl https://api.github.com/repos/1121170088/qqwry/releases/latest | jq -r '.name')
-        mkdir pure
-        wget -P pure https://github.com/1121170088/qqwry/releases/download/v1.0.0/pure.zip
-        unzip pure/pure.zip -d pure
+        #mkdir pure
+        #wget -P pure https://github.com/1121170088/qqwry/releases/download/v1.0.0/pure.zip
+        #unzip pure/pure.zip -d pure
 
         ls -alh
         pwd

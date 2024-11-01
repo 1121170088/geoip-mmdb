@@ -129,6 +129,24 @@ func ReadCityLocationCsvFile(filename string) {
 			TimeZone:            strs[12],
 			IsInEuropeanUnion:   strs[13],
 		}
+		if citylocation.CountryIsoCode == "CN" {
+			prov := citylocation.Subdivision1Name
+			pr := []rune(prov)
+			prl := len(pr)
+			if prl > 0 {
+				if string(pr[prl-1]) == "省" {
+					citylocation.Subdivision1Name = string(pr[0 : prl-1])
+				}
+				if string(pr[prl-1]) == "市" {
+					citylocation.Subdivision1Name = string(pr[0 : prl-1])
+				}
+				if prl > 3 {
+					if string(pr[prl-3:]) == "自治区" {
+						citylocation.Subdivision1Name = string(pr[0 : prl-3])
+					}
+				}
+			}
+		}
 		CityLocations[citylocation.GeoNameId] = &citylocation
 	}
 }
@@ -712,7 +730,7 @@ func HandMergeChannel() {
 					log.Panic(err)
 				}
 				insertData(ipnet, theCity)
-				log.Printf("%s,%s,%s,%s", ipnet.String(), theCity.Subdivision1Name, theCity.Name, theCity.Subdivision2Name)
+				//log.Printf("%s,%s,%s,%s", ipnet.String(), theCity.Subdivision1Name, theCity.Name, theCity.Subdivision2Name)
 				theCity = lastCity
 				preIp = lastIp
 				startIp = lastIp
@@ -745,7 +763,7 @@ func readFiles(pathbase string) {
 func getCityLocation(v *CityIpBlock, k string) *CityLocation {
 	citylocation, ok := CityLocations[v.GeoNameId]
 	if !ok {
-		log.Printf("city location not found %s", k)
+		//log.Printf("city location not found %s", k)
 		citylocation = &CityLocation{
 			NetWork:             k,
 			GeoNameId:           "",

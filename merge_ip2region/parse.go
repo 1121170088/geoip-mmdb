@@ -86,6 +86,21 @@ func WriteCsv(list []Ip2regionTool.IpRangeItem, csrwriter *csv.Writer) {
 		if ss[3] == "" {
 			continue
 		}
+		pr := []rune(ss[2])
+		prl := len(pr)
+		if prl > 0 {
+			if string(pr[prl-1]) == "省" {
+				ss[2] = string(pr[0 : prl-1])
+			}
+			if string(pr[prl-1]) == "市" {
+				ss[2] = string(pr[0 : prl-1])
+			}
+			if prl > 3 {
+				if string(pr[prl-3:]) == "自治区" {
+					ss[2] = string(pr[0 : prl-3])
+				}
+			}
+		}
 		record := []string{uint32ToIp(one.LowU32).String(), uint32ToIp(one.HighU32).String(),
 			ss[2], ss[3], ss[1], ""}
 		csrwriter.Write(record)
