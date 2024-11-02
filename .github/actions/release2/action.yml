@@ -95,6 +95,7 @@ runs:
         zip -r GeoLite2-City.zip GeoLite2-City.mmdb
         zip -r GeoLite2-Country.zip GeoLite2-Country.mmdb
         zip -r GeoLite2-merge-City.zip GeoLite2-merge-City.mmdb
+        zip -r GeoLite2-All.zip GeoLite2-ASN.mmdb GeoLite2-Country.mmdb GeoLite2-merge-City.mmdb
         rm -rf geoip-mmdb.exe  geoip-mmdb *.mmdb
         ls -alh
 
