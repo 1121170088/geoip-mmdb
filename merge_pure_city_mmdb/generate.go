@@ -756,7 +756,7 @@ func HandMergeChannel() {
 	log.Printf("HandMergeChannel finished")
 }
 func readFiles(pathbase string) {
-	coordinate.Load("./location.json")
+	coordinate.Load(filepath.Join(pathbase, "location.json"))
 	ReadCityIpBlockCsvFile(filepath.Join(pathbase, "GeoLite2-City-Blocks-IPv4.csv"))
 	ReadCityIpBlockCsvFile(filepath.Join(pathbase, "GeoLite2-City-Blocks-IPv6.csv"))
 	ReadCityLocationCsvFile(filepath.Join(pathbase, "GeoLite2-City-Locations-zh-CN.csv"))
