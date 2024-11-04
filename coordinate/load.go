@@ -21,8 +21,8 @@ type Node struct {
 
 var Nodes map[string]*Node
 
-func Load() {
-	bs, err := ioutil.ReadFile("./location.json")
+func Load(fname string) {
+	bs, err := ioutil.ReadFile(fname)
 	if err != nil {
 		log.Panic(err)
 	}
