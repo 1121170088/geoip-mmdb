@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/csv"
 	"fmt"
+	"geoip-mmdb/coordinate"
 	"geoip-mmdb/reader"
 	"github.com/maxmind/mmdbwriter"
 	"github.com/maxmind/mmdbwriter/mmdbtype"
@@ -729,6 +730,7 @@ func HandMergeChannel() {
 				if err != nil {
 					log.Panic(err)
 				}
+				fixCoor(theCity)
 				insertData(ipnet, theCity)
 				//log.Printf("%s,%s,%s,%s", ipnet.String(), theCity.Subdivision1Name, theCity.Name, theCity.Subdivision2Name)
 				theCity = lastCity
@@ -747,12 +749,14 @@ func HandMergeChannel() {
 		if err != nil {
 			log.Panic(err)
 		}
+		fixCoor(theCity)
 		insertData(ipnet, theCity)
 	}
 	done <- struct{}{}
 	log.Printf("HandMergeChannel finished")
 }
 func readFiles(pathbase string) {
+	coordinate.Load()
 	ReadCityIpBlockCsvFile(filepath.Join(pathbase, "GeoLite2-City-Blocks-IPv4.csv"))
 	ReadCityIpBlockCsvFile(filepath.Join(pathbase, "GeoLite2-City-Blocks-IPv6.csv"))
 	ReadCityLocationCsvFile(filepath.Join(pathbase, "GeoLite2-City-Locations-zh-CN.csv"))
@@ -912,4 +916,12 @@ func int2ip(nn uint32) net.IP {
 	ip := make(net.IP, 4)
 	binary.BigEndian.PutUint32(ip, nn)
 	return ip
+}
+
+func fixCoor(city *reader.City) {
+	err, coor := coordinate.FindCoor(city.Subdivision1Name, city.Name, city.Subdivision2Name)
+	if err == nil {
+		city.Location.Latitude = coor[1]
+		city.Location.Longitude = coor[0]
+	}
 }
