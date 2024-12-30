@@ -28,7 +28,7 @@ runs:
         unzip GeoLite2-ASN-CSV_*.zip
         rm -rf GeoLite2-ASN-CSV_*.zip
         GeoLite2UpdatedDate=$(ls -d GeoLite2-ASN-CSV_* | cut -d '_' -f 2)
-        curl https://api.github.com/repos/1121170088/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
+        curl https://api.github.com/repos/belowLevel/geoip-mmdb/releases/latest | jq -r '.body' > body.txt
         ls -alh
         cat body.txt
         echo "GeoLite2UpdatedDate:"$GeoLite2UpdatedDate
@@ -64,9 +64,9 @@ runs:
         rm -rf merge_pure_city_mmdb/*.csv
         cp GeoLite2-City-CSV_*/*.csv merge_pure_city_mmdb/
 
-        pureUpdatedDate=$(curl https://api.github.com/repos/1121170088/qqwry/releases/latest | jq -r '.name')
+        pureUpdatedDate=$(curl https://api.github.com/repos/belowLevel/qqwry/releases/latest | jq -r '.name')
         #mkdir pure
-        #wget -P pure https://github.com/1121170088/qqwry/releases/download/v1.0.0/pure.zip
+        #wget -P pure https://github.com/belowLevel/qqwry/releases/download/v1.0.0/pure.zip
         #unzip pure/pure.zip -d pure
 
         ls -alh

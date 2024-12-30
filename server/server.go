@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"geoip-mmdb/search"
-	ds "github.com/1121170088/find-domain/search"
+	ds "github.com/belowLevel/find-domain/search"
 	"io"
 	"log"
 	"net"
@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func Start(addr, tldFile string)  {
+func Start(addr, tldFile string) {
 	if tldFile != "" {
 		ds.Init(tldFile)
 	}
@@ -35,9 +35,9 @@ func Start(addr, tldFile string)  {
 			writer.WriteHeader(400)
 			return
 		}
-		result := make(map[string] *search.Res)
+		result := make(map[string]*search.Res)
 		if tldFile != "" && level == "2" {
-			tempMap := make(map[string] struct{})
+			tempMap := make(map[string]struct{})
 			for _, domain := range domains {
 				dm := ds.Search(domain)
 				if dm != "" {
